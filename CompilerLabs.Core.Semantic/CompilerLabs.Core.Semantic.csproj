@@ -1,17 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <OutputType>Exe</OutputType>
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\CompilerLabs.Core.Lexer\CompilerLabs.Core.Lexer.csproj" />
     <ProjectReference Include="..\CompilerLabs.Core.Parser\CompilerLabs.Core.Parser.csproj" />
-    <ProjectReference Include="..\CompilerLabs.Core.Semantic\CompilerLabs.Core.Semantic.csproj" />
-    <ProjectReference Include="..\CompilerLabs.Core\CompilerLabs.Core.csproj" />
   </ItemGroup>
 
 </Project>
