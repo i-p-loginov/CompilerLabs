@@ -17,7 +17,7 @@ namespace CompilerLabs.Core.Parser.Ast
     public class NumberExpression : Expression
     {
         public double Value { get; }
-        public NumberExpression(double value) => Value = value;
+        public NumberExpression(double value, int line, int column) : base(line, column) => Value = value;
     }
 
     /// <summary>
@@ -26,7 +26,7 @@ namespace CompilerLabs.Core.Parser.Ast
     public class StringExpression : Expression
     {
         public string Value { get; }
-        public StringExpression(string value) => Value = value;
+        public StringExpression(string value, int line, int column) : base(line, column) => Value = value;
     }
 
     /// <summary>
@@ -35,7 +35,7 @@ namespace CompilerLabs.Core.Parser.Ast
     public class VariableExpression : Expression
     {
         public string Name { get; }
-        public VariableExpression(string name) => Name = name;
+        public VariableExpression(string name, int line, int column) : base(line, column) => Name = name;
     }
 
     /// <summary>
@@ -45,10 +45,10 @@ namespace CompilerLabs.Core.Parser.Ast
     public class BinaryExpression : Expression
     {
         public Expression Left { get; }
-        public TokenType Operator { get; } // Храним тип оператора (PLUS, MINUS, EQEQ, AND и т.д.)
+        public TokenType Operator { get; }
         public Expression Right { get; }
 
-        public BinaryExpression(Expression left, TokenType op, Expression right)
+        public BinaryExpression(Expression left, TokenType op, Expression right, int line, int column) : base(line, column)
         {
             Left = left;
             Operator = op;
@@ -62,10 +62,10 @@ namespace CompilerLabs.Core.Parser.Ast
     /// </summary>
     public class UnaryExpression : Expression
     {
-        public TokenType Operator { get; } // MINUS или EXCL (!)
+        public TokenType Operator { get; }
         public Expression Right { get; }
 
-        public UnaryExpression(TokenType op, Expression right)
+        public UnaryExpression(TokenType op, Expression right, int line, int column) : base(line, column)
         {
             Operator = op;
             Right = right;
@@ -78,10 +78,10 @@ namespace CompilerLabs.Core.Parser.Ast
     /// </summary>
     public class AssignExpression : Expression
     {
-        public string Name { get; } // Имя переменной, в которую записываем
-        public Expression Value { get; } // То, что записываем
+        public string Name { get; }
+        public Expression Value { get; }
 
-        public AssignExpression(string name, Expression value)
+        public AssignExpression(string name, Expression value, int line, int column) : base(line, column)
         {
             Name = name;
             Value = value;

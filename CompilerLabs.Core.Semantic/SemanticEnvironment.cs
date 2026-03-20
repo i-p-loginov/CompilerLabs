@@ -1,41 +1,52 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace CompilerLabs.Core.Semantic
 {
+    public class SymbolInfo
+    {
+        public string Name { get; set; }
+        public bool IsInitialized { get; set; }
+    }
+
     public class SemanticEnvironment
     {
         private readonly SemanticEnvironment? _parent;
-        private readonly Dictionary<string, bool> _variables;
+
+        private readonly Dictionary<string, SymbolInfo> _variables;
 
         public SemanticEnvironment(SemanticEnvironment? parent = null)
         {
             _parent = parent;
-            _variables = new Dictionary<string, bool>();
+            _variables = new Dictionary<string, SymbolInfo>();
         }
 
-        public bool DefineVariable(string name)
+        public bool DefineVariable(string name, bool isInitialized)
         {
             if (_variables.ContainsKey(name))
             {
                 return false;
             }
 
-            _variables[name] = true;
+            _variables[name] = new SymbolInfo { Name = name, IsInitialized = isInitialized };
             return true;
         }
 
         public bool IsVariableDefined(string name)
         {
-            if (_variables.ContainsKey(name))
-            {
-                return true;
-            }
-            
+            if (_variables.ContainsKey(name)) return true;
             return _parent?.IsVariableDefined(name) ?? false;
+        }
+
+        public SymbolInfo? GetVariable(string name)
+        {
+            if (_variables.TryGetValue(name, out var symbol)) return symbol;
+            return _parent?.GetVariable(name);
+        }
+
+        public void SetInitialized(string name)
+        {
+            var symbol = GetVariable(name);
+            if (symbol != null) symbol.IsInitialized = true;
         }
     }
 }

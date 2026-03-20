@@ -23,5 +23,13 @@ namespace CompilerLabs.Core.Parser.Ast
     /// </summary>
     public abstract class Expression
     {
+        public int Line { get; }
+        public int Column { get; }
+
+        protected Expression(int line, int column)
+        {
+            Line = line;
+            Column = column;
+        }
     }
 }

@@ -13,7 +13,7 @@ namespace CompilerLabs.Core.Parser.Ast
     public class ExpressionStatement : Statement
     {
         public Expression Expression { get; }
-        public ExpressionStatement(Expression expression) => Expression = expression;
+        public ExpressionStatement(Expression expression, int line, int column) : base(line, column) => Expression = expression;
     }
 
     /// <summary>
@@ -22,7 +22,7 @@ namespace CompilerLabs.Core.Parser.Ast
     public class PrintStatement : Statement
     {
         public Expression Expression { get; }
-        public PrintStatement(Expression expression) => Expression = expression;
+        public PrintStatement(Expression expression, int line, int column) : base(line, column) => Expression = expression;
     }
 
     /// <summary>
@@ -31,9 +31,9 @@ namespace CompilerLabs.Core.Parser.Ast
     public class VarStatement : Statement
     {
         public string Name { get; }
-        public Expression Initializer { get; } // Может быть null, если разрешено писать просто "var x;"
+        public Expression Initializer { get; }
 
-        public VarStatement(string name, Expression initializer)
+        public VarStatement(string name, Expression initializer, int line, int column) : base(line, column)
         {
             Name = name;
             Initializer = initializer;
@@ -47,7 +47,7 @@ namespace CompilerLabs.Core.Parser.Ast
     public class BlockStatement : Statement
     {
         public List<Statement> Statements { get; }
-        public BlockStatement(List<Statement> statements) => Statements = statements;
+        public BlockStatement(List<Statement> statements, int line, int column) : base(line, column) => Statements = statements;
     }
 
     /// <summary>
@@ -56,10 +56,10 @@ namespace CompilerLabs.Core.Parser.Ast
     public class IfStatement : Statement
     {
         public Expression Condition { get; }
-        public Statement ThenBranch { get; } // То, что выполняется, если true
-        public Statement ElseBranch { get; } // Может быть null, если блока else нет
+        public Statement ThenBranch { get; }
+        public Statement ElseBranch { get; }
 
-        public IfStatement(Expression condition, Statement thenBranch, Statement elseBranch = null)
+        public IfStatement(Expression condition, Statement thenBranch, Statement elseBranch, int line, int column) : base(line, column)
         {
             Condition = condition;
             ThenBranch = thenBranch;
@@ -75,7 +75,7 @@ namespace CompilerLabs.Core.Parser.Ast
         public Expression Condition { get; }
         public Statement Body { get; }
 
-        public WhileStatement(Expression condition, Statement body)
+        public WhileStatement(Expression condition, Statement body, int line, int column) : base(line, column)
         {
             Condition = condition;
             Body = body;

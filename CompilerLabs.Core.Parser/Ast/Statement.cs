@@ -24,5 +24,14 @@ namespace CompilerLabs.Core.Parser.Ast
     /// </summary>
     public abstract class Statement
     {
+        // Координаты для семантического анализатора
+        public int Line { get; }
+        public int Column { get; }
+
+        protected Statement(int line, int column)
+        {
+            Line = line;
+            Column = column;
+        }
     }
 }
