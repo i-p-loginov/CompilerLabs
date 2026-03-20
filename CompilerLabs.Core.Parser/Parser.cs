@@ -13,7 +13,6 @@ namespace CompilerLabs.Core.Parser
         private readonly List<Token> _tokens;
         private int _position;
 
-        // Список ошибок парсинга (теперь не роняем прогу сразу)
         public List<string> Errors { get; } = new List<string>();
 
         public Parser(IEnumerable<Token> tokens)

@@ -7,7 +7,7 @@ namespace Lab02.ParserDemo
 {
     internal class Program
     {
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
             var generator = new CompilerLabs.Core.RandomProgramGenerator();
             var flag = false;
@@ -33,7 +33,7 @@ namespace Lab02.ParserDemo
                 }
                 else if (key == '2')
                 {
-                    RunIncremental(generator);
+                    await RunIncremental(generator);
                 }
                 else
                 {
@@ -75,7 +75,7 @@ namespace Lab02.ParserDemo
             }
         }
       
-        static void RunIncremental(CompilerLabs.Core.RandomProgramGenerator generator)
+        static async Task RunIncremental(CompilerLabs.Core.RandomProgramGenerator generator)
         {
             Console.WriteLine("- инкрементальный парсер -");
 
@@ -95,7 +95,7 @@ namespace Lab02.ParserDemo
                 File.WriteAllText(path, code);
                 Console.WriteLine($"> Сохранен файл {fileName}");
 
-                workspace.UpdateBlock(fileName, code);
+                await workspace.UpdateBlockAsync(fileName, code);
             }
 
             var fullAst = workspace.GetFullAst();
@@ -107,9 +107,9 @@ namespace Lab02.ParserDemo
             string newCode = existingCode + "\nvar testVariable = 100;";
             File.WriteAllText(path2, newCode);
 
-            workspace.UpdateBlock("File_1.txt", File.ReadAllText(Path.Combine(tempDir, "File_1.txt")));
-            workspace.UpdateBlock("File_2.txt", File.ReadAllText(path2));
-            workspace.UpdateBlock("File_3.txt", File.ReadAllText(Path.Combine(tempDir, "File_3.txt")));
+            await workspace.UpdateBlockAsync("File_1.txt", File.ReadAllText(Path.Combine(tempDir, "File_1.txt")));
+            await workspace.UpdateBlockAsync("File_2.txt", File.ReadAllText(path2));
+            await workspace.UpdateBlockAsync("File_3.txt", File.ReadAllText(Path.Combine(tempDir, "File_3.txt")));
 
             Console.WriteLine("Рабочая область обновлена (File_1 и File_3 загружены из кэша, File_2 проанализирован повторно).");
 
