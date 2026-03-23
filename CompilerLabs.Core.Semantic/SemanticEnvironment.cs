@@ -46,7 +46,8 @@ namespace CompilerLabs.Core.Semantic
         public void SetInitialized(string name)
         {
             var symbol = GetVariable(name);
-            if (symbol != null) symbol.IsInitialized = true;
+            if (symbol != null)
+                symbol.IsInitialized = true;
         }
     }
 }

@@ -39,7 +39,7 @@ namespace CompilerLabs.Core.Parser
         public async Task UpdateBlockAsync(string blockId, string newCode)
         {
             var newHash = ComputeHash(newCode);
-
+            
             // 1. Проверяем кэш без блокировки потоков
             if (_blocks.TryGetValue(blockId, out var existingState))
             {

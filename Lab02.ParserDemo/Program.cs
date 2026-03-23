@@ -58,6 +58,12 @@ namespace Lab02.ParserDemo
             var printer = new AstPrinter();
             printer.Print(ast);
 
+            var mermaidGen = new MermaidAstGenerator();
+            string mermaidCode = mermaidGen.Generate(ast);
+
+            File.WriteAllText("AST_Visualization.md", mermaidCode);
+            Console.WriteLine("\nГраф сохранен в файл AST_Visualization.mermaid");
+
             var semanticAnalyzer = new SemanticAnalyzer();
             semanticAnalyzer.Analyze(ast);
 
