@@ -2,12 +2,6 @@
 
 namespace CompilerLabs.Core.Semantic
 {
-    public class SymbolInfo
-    {
-        public string Name { get; set; }
-        public bool IsInitialized { get; set; }
-    }
-
     public class SemanticEnvironment
     {
         private readonly SemanticEnvironment? _parent;
@@ -48,6 +42,11 @@ namespace CompilerLabs.Core.Semantic
             var symbol = GetVariable(name);
             if (symbol != null)
                 symbol.IsInitialized = true;
+        }
+
+        public IEnumerable<SymbolInfo> GetLocalVariables()
+        {
+            return _variables.Values;
         }
     }
 }

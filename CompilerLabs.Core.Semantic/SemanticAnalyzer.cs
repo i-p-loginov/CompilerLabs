@@ -68,6 +68,7 @@ namespace CompilerLabs.Core.Semantic
         private void AnalyzePrintStatement(PrintStatement stmt)
         {
             VisitExpression(stmt.Expression);
+            CheckUnusedVariables();
         }
 
         private void AnalyzeExpressionStatement(ExpressionStatement stmt)
@@ -85,6 +86,7 @@ namespace CompilerLabs.Core.Semantic
                 VisitStatement(innerStatement);
             }
 
+            CheckUnusedVariables();
             _environment = previousEnvironment;
         }
 
@@ -105,6 +107,17 @@ namespace CompilerLabs.Core.Semantic
             VisitStatement(stmt.Body);
         }
 
+        private void CheckUnusedVariables()
+        {
+            foreach (var symbol in _environment.GetLocalVariables())
+            {
+                if (!symbol.IsUsed)
+                {
+                    _errors.Add($"[Semantic Warning] Переменная '{symbol.Name}' объявлена, но ни разу не использовалась.");
+                }
+            }
+        }
+
         private void AnalyzeVariableExpression(VariableExpression expr)
         {
             var symbol = _environment.GetVariable(expr.Name);
@@ -112,9 +125,14 @@ namespace CompilerLabs.Core.Semantic
             {
                 _errors.Add($"[{expr.Line}:{expr.Column}] Использование необъявленной переменной '{expr.Name}'.");
             }
-            else if (!symbol.IsInitialized)
+            else
             {
-                _errors.Add($"[{expr.Line}:{expr.Column}] Использование неинициализированной переменной '{expr.Name}'.");
+                symbol.IsUsed = true;
+
+                if (!symbol.IsInitialized)
+                {
+                    _errors.Add($"[{expr.Line}:{expr.Column}] Использование неинициализированной переменной '{expr.Name}'.");
+                }
             }
         }
 
