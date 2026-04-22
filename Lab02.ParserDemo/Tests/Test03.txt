@@ -1,0 +1,8 @@
+﻿var x;
+var y = 100;
+
+print x;
+
+{
+var z = 50;
+}

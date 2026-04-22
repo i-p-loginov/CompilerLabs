@@ -74,10 +74,40 @@ namespace CompilerLabs.Core.Lexer
                     continue;
                 }
 
+                if (current == '"')
+                {
+                    yield return ReadString();
+                    continue;
+                }
+
                 yield return ReadOperatorOrPunctuation();
             }
 
             yield return new Token(TokenType.EOF, "\0", _position, _line, _column);
+        }
+
+        private Token ReadString()
+        {
+            var startPos = _position;
+            var startLine = _line;
+            var startCol = _column;
+
+            Next(); // Съедаем открывающую кавычку '"'
+
+            var sb = new StringBuilder();
+            while (Peek() != '"' && Peek() != '\0')
+            {
+                sb.Append(Next()); // Читаем всё подряд до следующей кавычки
+            }
+
+            if (Peek() == '\0')
+            {
+                throw new Exception($"[Lexer Error] Незакрытая строка (Unterminated string) начиная с Line {startLine}, Column {startCol}");
+            }
+
+            Next(); // Съедаем закрывающую кавычку '"'
+
+            return new Token(TokenType.STRING, sb.ToString(), startPos, startLine, startCol);
         }
 
         private Token ReadNumber()

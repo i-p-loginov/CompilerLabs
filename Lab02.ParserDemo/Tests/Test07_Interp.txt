@@ -1,0 +1,17 @@
+﻿print "--- Control Flow Test ---";
+var x = 5;
+if (x > 0) {
+	print "x is positive (correct)";
+} else {
+	print "x is negative (incorrect)";
+}
+
+var counter = 0;
+var sum = 0;
+while (counter < 5) {
+	counter = counter + 1;
+	sum = sum + counter;
+}
+print "Sum from 1 to 5 (Expected: 15):";
+print sum;
+print "-------------------------";

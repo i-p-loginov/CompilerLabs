@@ -1,0 +1,9 @@
+﻿var globalVar = 1;
+
+{
+var localVar = 2;
+var globalVar = 999;
+print globalVar;
+}
+
+print localVar; 

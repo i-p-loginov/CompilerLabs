@@ -8,10 +8,38 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\CompilerLabs.Core.Interpreter\CompilerLabs.Core.Interpreter.csproj" />
     <ProjectReference Include="..\CompilerLabs.Core.Lexer\CompilerLabs.Core.Lexer.csproj" />
     <ProjectReference Include="..\CompilerLabs.Core.Parser\CompilerLabs.Core.Parser.csproj" />
     <ProjectReference Include="..\CompilerLabs.Core.Semantic\CompilerLabs.Core.Semantic.csproj" />
     <ProjectReference Include="..\CompilerLabs.Core\CompilerLabs.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Tests\Test08_Interp.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Tests\Test07_Interp.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Tests\Test06_Interp.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Tests\Test05.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Tests\Test04.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Tests\Test03.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Tests\Test02.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Tests\Test01.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

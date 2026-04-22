@@ -1,0 +1,13 @@
+﻿var money = 50000000;
+var hasApartment = 0;
+
+if (1 == 2) {
+print "This is dead code";
+	hasApartment = 1;
+} else {
+	print "Working hard";
+}
+
+while (10 != 10) {
+	money = money + 1;
+}

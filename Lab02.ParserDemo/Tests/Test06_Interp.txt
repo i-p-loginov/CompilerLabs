@@ -1,0 +1,17 @@
+﻿print "--- Arithmetic & Logic Test ---";
+var a = 10;
+var b = 20;
+var c = (a + b) * 2 - 10 / 2;
+print "Expected: 55";
+print "Actual: ";
+print c;
+
+var logic1 = (a < b) && (b == 20);
+var logic2 = (a > b) || (b != 20); 
+var logic3 = !logic2;            
+
+print "Logic check (true, false, true):";
+print logic1;
+print logic2;
+print logic3;
+print "-------------------------------";

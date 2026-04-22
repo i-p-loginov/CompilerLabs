@@ -1,4 +1,5 @@
-﻿using CompilerLabs.Core.Lexer;
+﻿using CompilerLabs.Core.Interpreter;
+using CompilerLabs.Core.Lexer;
 using CompilerLabs.Core.Parser;
 using CompilerLabs.Core.Semantic;
 using System.IO;
@@ -7,17 +8,20 @@ namespace Lab02.ParserDemo
 {
     internal class Program
     {
-        static async Task Main(string[] args)
+        static void Main(string[] args)
         {
-            var generator = new CompilerLabs.Core.RandomProgramGenerator();
             var flag = false;
 
             while (!flag)
             {
-                Console.WriteLine("1 - Стандартный парсинг (анализ из оперативной памяти)");
-                Console.WriteLine("2 - Инкрементальный парсинг (работа с файловой системой и кэшем)");
+                Console.WriteLine("==================================================================");
+                Console.WriteLine("АВТОМАТИЧЕСКИЙ ПРОГОН ТЕСТОВ (ЭНТЕРПРАЙЗ ТЕСТ-СТЕНД)");
+                Console.WriteLine("==================================================================");
+                Console.WriteLine("1 - Запустить тесты семантики (Ошибки и Warnings)");
+                Console.WriteLine("2 - Запустить тесты интерпретатора (Реальное выполнение кода)");
                 Console.WriteLine("q - Завершить работу");
-                Console.Write("\nВыберите режим: ");
+                Console.WriteLine("==================================================================");
+                Console.Write("Выберите режим: ");
 
                 var key = Console.ReadKey().KeyChar;
                 Console.WriteLine("\n");
@@ -29,114 +33,141 @@ namespace Lab02.ParserDemo
                 }
                 else if (key == '1')
                 {
-                    RunRegular(generator);
+                    RunTestSuite(runInterpreter: false);
                 }
                 else if (key == '2')
                 {
-                    await RunIncremental(generator);
+                    RunTestSuite(runInterpreter: true);
                 }
                 else
                 {
                     Console.WriteLine("Некорректный ввод. Пожалуйста, введите 1, 2 или q.");
                 }
+
+                Console.WriteLine("\nНажмите любую клавишу для продолжения...");
+                Console.ReadKey();
+                Console.Clear();
             }
         }
-        static void RunRegular(CompilerLabs.Core.RandomProgramGenerator generator)
+
+        static void RunTestSuite(bool runInterpreter)
         {
-            Console.WriteLine("-- обычный парсер -- ");
-            var randomCode = generator.Generate(10);
-            Console.WriteLine(randomCode);
+            string modeName = runInterpreter ? "ИНТЕРПРЕТАТОРА (РАНТАЙМ)" : "СЕМАНТИКИ (СТАТИЧЕСКИЙ АНАЛИЗ)";
+            Console.WriteLine($"=== ЗАПУСК ТЕСТОВОГО СТЕНДА {modeName} ИЗ ФАЙЛОВ ===\n");
 
-            var lexer = new Lexer(randomCode);
-            var tokens = lexer.Tokenize();
+            string testsDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Tests");
 
-            var parser = new Parser(tokens);
-            var ast = parser.Parse();
-
-            Console.WriteLine($"Успешно распознано: {ast.Count} инструкций на верхнем уровне.");
-
-            var printer = new AstPrinter();
-            printer.Print(ast);
-
-            var mermaidGen = new MermaidAstGenerator();
-            string mermaidCode = mermaidGen.Generate(ast);
-
-            File.WriteAllText("AST_Visualization.md", mermaidCode);
-            Console.WriteLine("\nГраф сохранен в файл AST_Visualization.mermaid");
-
-            var semanticAnalyzer = new SemanticAnalyzer();
-            semanticAnalyzer.Analyze(ast);
-
-            if (semanticAnalyzer.Errors.Any())
+            if (!Directory.Exists(testsDirectory))
             {
-                Console.WriteLine("Обнаружены ошибки семантического анализа:");
-                foreach (var error in semanticAnalyzer.Errors)
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine($"[ОШИБКА] Папка с тестами не найдена по пути:\n{testsDirectory}");
+                Console.ResetColor();
+                return;
+            }
+
+            var testFiles = Directory.GetFiles(testsDirectory, "*.txt").OrderBy(f => f).ToList();
+
+            if (testFiles.Count == 0)
+            {
+                Console.WriteLine($"В папке {testsDirectory} нет тестовых файлов (.txt).");
+                return;
+            }
+
+            foreach (var filePath in testFiles)
+            {
+                string fileName = Path.GetFileName(filePath);
+
+                if (runInterpreter && !fileName.Contains("Interp")) continue;
+                if (!runInterpreter && fileName.Contains("Interp")) continue;
+
+
+                Console.WriteLine($"\n> ЗАПУСК ТЕСТА: {fileName}");
+                Console.WriteLine("--------------------------------------------------");
+
+                string code = File.ReadAllText(filePath);
+                if (!runInterpreter) Console.WriteLine(code.Trim());
+                Console.WriteLine("--------------------------------------------------");
+
+                var lexer = new Lexer(code);
+                var tokens = lexer.Tokenize();
+
+                var parser = new Parser(tokens);
+                var ast = parser.Parse();
+
+                if (parser.Errors.Any())
                 {
-                    Console.WriteLine($"- {error}");
+                    Console.WriteLine("ОШИБКИ ПАРСИНГА (Синтаксис):");
+                    foreach (var err in parser.Errors) Console.WriteLine($"  - {err}");
+                    continue;
+                }
+
+                var semanticAnalyzer = new SemanticAnalyzer();
+                semanticAnalyzer.Analyze(ast);
+
+                if (!runInterpreter)
+                {
+                    PrintSemanticResults(semanticAnalyzer);
+                }
+                else
+                {
+                    if (semanticAnalyzer.Errors.Any())
+                    {
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.WriteLine("Семантический анализ выявил ошибки. Выполнение отменено.");
+                        foreach (var error in semanticAnalyzer.Errors)
+                        {
+                            Console.WriteLine($"  - {error}");
+                        }
+                        Console.ResetColor();
+                        continue;
+                    }
+
+                    Console.ForegroundColor = ConsoleColor.Cyan;
+                    Console.WriteLine(">>> ВЫВОД ПРОГРАММЫ:");
+
+                    var interpreter = new TreeInterpreter();
+                    interpreter.Interpret(ast);
+
+                    Console.ResetColor();
                 }
             }
-            else
-            {
-                Console.WriteLine("Семантический анализ прошел успешно, ошибок не обнаружено.");
-            }
+
+            Console.WriteLine("\n=== ТЕСТИРОВАНИЕ ЗАВЕРШЕНО ===");
         }
-      
-        static async Task RunIncremental(CompilerLabs.Core.RandomProgramGenerator generator)
+
+        static void PrintSemanticResults(SemanticAnalyzer analyzer)
         {
-            Console.WriteLine("- инкрементальный парсер -");
+            bool hasIssues = false;
 
-            var workspace = new IncrementalWorkspace();
-
-            string tempDir = Path.Combine(Path.GetTempPath(), "CompilerLabs_Workspace");
-            Directory.CreateDirectory(tempDir);
-            Console.WriteLine($"Рабочая директория создана: {tempDir}");
-
-            Console.WriteLine("\n1. Генерация файлов с исходным кодом...");
-            for (int i = 1; i <= 3; i++)
+            if (analyzer.Errors.Any())
             {
-                string fileName = $"File_{i}.txt";
-                string path = Path.Combine(tempDir, fileName);
-                string code = generator.Generate(4);
-
-                File.WriteAllText(path, code);
-                Console.WriteLine($"> Сохранен файл {fileName}");
-
-                await workspace.UpdateBlockAsync(fileName, code);
-            }
-
-            var fullAst = workspace.GetFullAst();
-            Console.WriteLine($"\nВсе файлы успешно загружены в Workspace. Общее число узлов: {fullAst.Count}");
-
-            Console.WriteLine("\n2. Имитация работы в редакторе. Добавление кода в File_2.txt...");
-            string path2 = Path.Combine(tempDir, "File_2.txt");
-            string existingCode = File.ReadAllText(path2);
-            string newCode = existingCode + "\nvar testVariable = 100;";
-            File.WriteAllText(path2, newCode);
-
-            await workspace.UpdateBlockAsync("File_1.txt", File.ReadAllText(Path.Combine(tempDir, "File_1.txt")));
-            await workspace.UpdateBlockAsync("File_2.txt", File.ReadAllText(path2));
-            await workspace.UpdateBlockAsync("File_3.txt", File.ReadAllText(Path.Combine(tempDir, "File_3.txt")));
-
-            Console.WriteLine("Рабочая область обновлена (File_1 и File_3 загружены из кэша, File_2 проанализирован повторно).");
-
-            var updatedAst = workspace.GetFullAst();
-            Console.WriteLine($"\nСинтаксическое дерево обновлено. Всего узлов: {updatedAst.Count}");
-
-            Console.WriteLine("\n3. Семантический анализ обновленного проекта:");
-            var semanticAnalyzer = new SemanticAnalyzer();
-            semanticAnalyzer.Analyze(updatedAst);
-
-            if (semanticAnalyzer.Errors.Any())
-            {
-                Console.WriteLine("Выявлены следующие семантические ошибки:");
-                foreach (var error in semanticAnalyzer.Errors)
+                hasIssues = true;
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("ОШИБКИ КОМПИЛЯЦИИ (Errors):");
+                foreach (var error in analyzer.Errors)
                 {
-                    Console.WriteLine($"- {error}");
+                    Console.WriteLine($"  - {error}");
                 }
+                Console.ResetColor();
             }
-            else
+
+            if (analyzer.Warnings.Any())
             {
-                Console.WriteLine("Семантический анализ завершен без ошибок.");
+                hasIssues = true;
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.WriteLine("ПРЕДУПРЕЖДЕНИЯ (Warnings):");
+                foreach (var warning in analyzer.Warnings)
+                {
+                    Console.WriteLine($"  - {warning}");
+                }
+                Console.ResetColor();
+            }
+
+            if (!hasIssues)
+            {
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine("Семантический анализ прошел успешно! Код чист.");
+                Console.ResetColor();
             }
         }
     }

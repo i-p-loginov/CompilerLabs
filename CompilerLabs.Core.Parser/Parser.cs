@@ -252,6 +252,13 @@ namespace CompilerLabs.Core.Parser
                 return new NumberExpression(value, current.Line, current.Column);
             }
 
+            // НОВОЕ: Добавили обработку строк! Теперь парсер не будет падать в обморок.
+            if (Match(TokenType.STRING))
+            {
+                Token current = Previous();
+                return new StringExpression(current.Value, current.Line, current.Column);
+            }
+
             if (Match(TokenType.ID))
             {
                 Token current = Previous();
@@ -309,6 +316,7 @@ namespace CompilerLabs.Core.Parser
         {
             Errors.Add($"[Parser Error] Line {token.Line}, Col {token.Column}: {message}");
         }
+
         private void Synchronize()
         {
             Advance();

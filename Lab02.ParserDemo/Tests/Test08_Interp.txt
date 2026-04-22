@@ -1,0 +1,25 @@
+﻿print "--- Fibonacci Test (Iterative) ---";
+var n = 10; // Вычисляем 10-е число Фибоначчи
+var a = 0;
+var b = 1;
+var i = 2;
+var temp;
+
+if (n == 0) {
+	print a;
+} else {
+	if (n == 1) {
+		print b;
+	}
+	else {
+		while (i <= n) {
+			temp = a + b;
+			a = b;
+			b = temp;
+			i = i + 1;
+		}
+		print "10th Fibonacci number (Expected: 55):";
+		print b;
+	}
+}
+print "----------------------------------";

@@ -1,0 +1,6 @@
+﻿if (isEven) {
+    print "Even number:";
+    print counter;
+}
+
+counter = counter + 1;

@@ -1,0 +1,12 @@
+﻿var age = 20;
+var name = "Ivan";
+
+var result = age - name;
+
+age = "Twenty";
+
+if (age + 5) {
+print "Age is good";
+}
+
+var logic = (10 > 5) && 42;
