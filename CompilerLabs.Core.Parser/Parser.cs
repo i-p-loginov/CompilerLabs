@@ -38,9 +38,34 @@ namespace CompilerLabs.Core.Parser
             return statements;
         }
 
+        private Statement ParseFunction()
+        {
+            Token keyword = Previous();
+            Token token = Consume(TokenType.ID, "Ожидается имя функции.");
+
+            Consume(TokenType.LPAREN, "Ожидается '(' после имени функции.");
+            var parameters = new List<string>();
+            if (!Check(TokenType.RPAREN))
+            {
+                do
+                {
+                   
+                    Token param = Consume(TokenType.ID, "Ожидается имя параметра.");
+                    parameters.Add(param.Value);
+                } while (Match(TokenType.COMMA));
+            }
+            Consume(TokenType.RPAREN, "Ожидается ')' после параметров функции.");
+            Consume(TokenType.LBRACE, "Ожидается '{' перед телом функции.");
+
+            var body = new BlockStatement(ParseBlock(), keyword.Line, keyword.Column);
+            return new FunctionStatement(token.Value, parameters, body, keyword.Line, keyword.Column);
+        }
+
         private Statement ParseDeclaration()
         {
+            if (Match(TokenType.FUNC)) return ParseFunction();
             if (Match(TokenType.VAR)) return ParseVarDeclaration();
+            
             return ParseStatement();
         }
 
@@ -49,6 +74,7 @@ namespace CompilerLabs.Core.Parser
             if (Match(TokenType.IF)) return ParseIfStatement();
             if (Match(TokenType.WHILE)) return ParseWhileStatement();
             if (Match(TokenType.PRINT)) return ParsePrintStatement();
+            if (Match(TokenType.RETURN)) return ParseReturnStatement();
 
             if (Match(TokenType.LBRACE))
             {
@@ -58,6 +84,18 @@ namespace CompilerLabs.Core.Parser
             }
 
             return ParseExpressionStatement();
+        }
+
+        private Statement ParseReturnStatement()
+        {
+            Token keyword = Previous();
+            Expression value = null;
+            if (!Check(TokenType.SEMICOLON))
+            {
+                value = ParseExpression();
+            }
+            Consume(TokenType.SEMICOLON, "Ожидается ';' после оператора return.");
+            return new ReturnStatement(value, keyword.Line, keyword.Column);
         }
 
         private Statement ParseVarDeclaration()
@@ -240,7 +278,42 @@ namespace CompilerLabs.Core.Parser
                 return new UnaryExpression(op.Type, right, op.Line, op.Column);
             }
 
-            return ParsePrimary();
+            return ParseCall();
+        }
+
+        private Expression ParseCall()
+        {
+            Expression expr = ParsePrimary();
+            while (true)
+            {
+                if (Match(TokenType.LPAREN))
+                {
+                    var args = new List<Expression>();
+                    if (!Check(TokenType.RPAREN))
+                    {
+                        do
+                        {
+                            args.Add(ParseExpression());
+                        } while (Match(TokenType.COMMA));
+                    }
+                    Token paren = Consume(TokenType.RPAREN, "Ожидается ')' после аргументов.");
+                    
+                    if (expr is VariableExpression varExpr)
+                    {
+                        expr = new CallExpression(varExpr.Name, args, paren.Line, paren.Column);
+                    }
+                    else
+                    {
+                        Error(paren, "Ожидается имя функции перед '('");
+                        throw new ParseException();
+                    }
+                }
+                else
+                {
+                    break;
+                }
+            }
+            return expr;
         }
 
         private Expression ParsePrimary()

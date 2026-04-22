@@ -1,10 +1,14 @@
-﻿namespace CompilerLabs.Core.Interpreter
+﻿using CompilerLabs.Core.Parser.Ast;
+
+namespace CompilerLabs.Core.Interpreter
 {
     public class RuntimeEnvironment
     {
         private readonly RuntimeEnvironment? _parent;
 
         private readonly Dictionary<string, object?> _values;
+
+        private readonly Dictionary<string, FunctionStatement> _functions = new();
 
         public RuntimeEnvironment(RuntimeEnvironment? parent = null)
         {
@@ -47,6 +51,24 @@
             }
 
             throw new Exception($"[Runtime Error] Неизвестная переменная '{name}'.");
+        }
+
+        public void DefineFunction(string name, FunctionStatement function)
+        {
+            _functions[name] = function;
+        }
+
+        public FunctionStatement GetFunction(string name)
+        {
+            if (_functions.TryGetValue(name, out var function))
+            {
+                return function;
+            }
+            if (_parent != null)
+            {
+                return _parent.GetFunction(name);
+            }
+            throw new Exception($"[Runtime Error] Неизвестная функция '{name}'.");
         }
     }
 }

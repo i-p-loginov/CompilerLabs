@@ -16,13 +16,16 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Tests\Test08_Interp.txt">
+    <None Update="Tests\Test09_Interp.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Tests\Test07_Interp.txt">
+    <None Update="Tests\Test08_Int2erp.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Tests\Test06_Interp.txt">
+    <None Update="Tests\Test07_In2terp.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Tests\Test06_In2terp.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Tests\Test05.txt">

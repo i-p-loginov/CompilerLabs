@@ -11,6 +11,7 @@ namespace CompilerLabs.Core.Semantic
         Unknown,
         Number,
         String,
-        Bool
+        Bool,
+        Function
     }
 }

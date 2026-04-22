@@ -37,10 +37,72 @@ namespace CompilerLabs.Core.Semantic
                 case BlockStatement b: AnalyzeBlockStatement(b); break;
                 case IfStatement i: AnalyzeIfStatement(i); break;
                 case WhileStatement w: AnalyzeWhileStatement(w); break;
+                case FunctionStatement funcStatement:
+                    AnalyzeFunctionStatement(funcStatement); break;
+                case ReturnStatement returnStatement:
+                    // Для простоты пока не реализуем полноценный анализ возвращаемого типа
+                    VisitExpression(returnStatement.Value);
+                    break;
                 default:
                     _errors.Add($"[{statement.Line}:{statement.Column}] Неподдерживаемая инструкция: {statement.GetType().Name}");
                     break;
             }
+        }
+
+        public void AnalyzeFunctionStatement(FunctionStatement stmt)
+        {
+            if (!_environment.DefineFunction(stmt.Name, stmt.Parameters.Count))
+            {
+                _errors.Add($"[{stmt.Line}:{stmt.Column}] Функция '{stmt.Name}' уже объявлена в этой области видимости.");
+                return;
+            }
+
+            var previousEnvironment = _environment;
+            _environment = new SemanticEnvironment(previousEnvironment);
+            
+            // Регистрируем параметры функции как локальные переменные
+            foreach (var param in stmt.Parameters)
+            {
+                if (!_environment.DefineVariable(param, true, DataType.Unknown))
+                {
+                    _errors.Add($"[{stmt.Line}:{stmt.Column}] Параметр '{param}' уже объявлен в функции '{stmt.Name}'.");
+                }
+            }
+
+            foreach (var innerStatement in stmt.Body.Statements)
+            {
+                VisitStatement(innerStatement);
+            }
+
+            // Выходим из области видимости функции - проверяем, не забыли ли использовать параметры
+            CheckUnusedVariables();
+            _environment = previousEnvironment;
+        }
+
+        private DataType AnalyzeFunctionCallExpression(CallExpression expr)
+        {
+            var symbol = _environment.GetVariable(expr.CalleeName);
+
+            if (symbol == null || symbol.Type != DataType.Function)
+            {
+                _errors.Add($"[{expr.Line}:{expr.Column}] Вызов неопределенной функции '{expr.CalleeName}'.");
+                return DataType.Unknown;
+            }
+            
+            symbol.IsUsed = true; // Снимаем метку "неиспользуемая" для функции
+
+
+            if (expr.Arguments.Count != symbol.Arity)
+            {
+                _errors.Add($"[{expr.Line}:{expr.Column}] Неверное количество аргументов при вызове функции '{expr.CalleeName}'. Ожидалось: {symbol.Arity}, получено: {expr.Arguments.Count}.");
+            }
+            foreach (var arg in expr.Arguments)
+            {
+                VisitExpression(arg);
+            }
+
+            // Для простоты предположим, что все функции возвращают тип Unknown
+            return DataType.Unknown;
         }
 
         private void AnalyzeVarStatement(VarStatement stmt)
@@ -148,6 +210,7 @@ namespace CompilerLabs.Core.Semantic
                 case AssignExpression a: return AnalyzeAssignExpression(a);
                 case BinaryExpression b: return AnalyzeBinaryExpression(b);
                 case UnaryExpression u: return AnalyzeUnaryExpression(u);
+                case CallExpression c: return AnalyzeFunctionCallExpression(c);
                 default:
                     _errors.Add($"[{expression.Line}:{expression.Column}] Неподдерживаемое выражение: {expression.GetType().Name}");
                     return DataType.Unknown;

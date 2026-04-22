@@ -1,0 +1,9 @@
+﻿print "Демо функций и рекурсии ---";
+fun add(x, y) {
+	return x + y;
+}
+
+var result = add(5, 10);
+print "Expected: 15";
+print "Actual: ";
+print result;

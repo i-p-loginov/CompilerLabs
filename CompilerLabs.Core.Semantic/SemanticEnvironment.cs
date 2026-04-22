@@ -13,6 +13,24 @@ namespace CompilerLabs.Core.Semantic
             _variables = new Dictionary<string, SymbolInfo>();
         }
 
+        public bool DefineFunction(string name, int arity)
+        {
+            if (_variables.ContainsKey(name))
+            {
+                return false;
+            }
+
+            _variables[name] = new SymbolInfo
+            {
+                Name = name,
+                IsInitialized = true, // Функции считаются всегда инициализированными
+                IsUsed = true,
+                Type = DataType.Function,
+                Arity = arity
+            };
+            return true;
+        }
+
         // При объявлении теперь жестко фиксируем тип переменной
         public bool DefineVariable(string name, bool isInitialized, DataType type)
         {

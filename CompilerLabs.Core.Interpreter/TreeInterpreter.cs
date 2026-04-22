@@ -85,7 +85,16 @@ namespace CompilerLabs.Core.Interpreter
                         Execute(w.Body);
                     }
                     break;
-
+                case FunctionStatement f: 
+                    _environment.DefineFunction(f.Name, f);
+                    break;
+                case ReturnStatement r:
+                    object? returnValue = null;
+                    if (r.Value != null)
+                    {
+                        returnValue = Evaluate(r.Value);
+                    }
+                    throw new ReturnException(returnValue);
                 default:
                     throw new Exception($"Неизвестная инструкция: {stmt.GetType().Name}");
             }
@@ -172,6 +181,42 @@ namespace CompilerLabs.Core.Interpreter
                     if (u.Operator == TokenType.MINUS) return -(double)rightVal!;
                     if (u.Operator == TokenType.EXCL) return !IsTruthy(rightVal);
                     return rightVal;
+                
+                case CallExpression call:
+                    var functionDecl = _environment.GetFunction(call.CalleeName);
+                    var args = new List<object?>();
+                    foreach(var argExpr in call.Arguments)
+                    {
+                        args.Add(Evaluate(argExpr));
+                    }
+                    
+                    var callEnv = new RuntimeEnvironment(_environment);
+                    for (int i = 0; i < functionDecl.Parameters.Count; i++)
+                    {
+                        string paramName = functionDecl.Parameters[i];
+                        object? argValue = i < args.Count ? args[i] : null;
+                        callEnv.Define(paramName, argValue);
+                    }
+
+                    var previousEnv = _environment;
+                    _environment = callEnv;
+                    try
+                    {
+                        foreach(var stmt in functionDecl.Body.Statements)
+                        {
+                            Execute(stmt);
+                        }
+                    }
+                    catch (ReturnException ret)
+                    {
+                        return ret.Value;
+                    }
+                    finally
+                    {
+                        _environment = previousEnv;
+                    }
+
+                    return null;
 
                 default:
                     throw new Exception($"Неизвестное выражение: {expr.GetType().Name}");

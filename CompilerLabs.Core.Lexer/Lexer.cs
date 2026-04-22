@@ -4,6 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+/*
+ 
+ fun add(a, b) {
+     return a + b;
+ }
+var result = add(5, 10);
+print result;
+ */
 namespace CompilerLabs.Core.Lexer
 {
     public class Lexer
@@ -19,7 +27,9 @@ namespace CompilerLabs.Core.Lexer
             ["print"] = TokenType.PRINT,
             ["if"] = TokenType.IF,
             ["else"] = TokenType.ELSE,
-            ["while"] = TokenType.WHILE
+            ["while"] = TokenType.WHILE,
+            ["fun"] = TokenType.FUNC,
+            ["return"] = TokenType.RETURN
         };
 
         private static readonly Dictionary<string, TokenType> Operators = new()
@@ -42,7 +52,8 @@ namespace CompilerLabs.Core.Lexer
             [")"] = TokenType.RPAREN,
             ["{"] = TokenType.LBRACE,
             ["}"] = TokenType.RBRACE,
-            [";"] = TokenType.SEMICOLON
+            [";"] = TokenType.SEMICOLON,
+            [","] = TokenType.COMMA
         };
 
         public Lexer(string input)

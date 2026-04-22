@@ -10,7 +10,7 @@
         PRINT,
         IF, ELSE,
         WHILE,      // while
-
+        FUNC, RETURN,
         // Operators
         PLUS, MINUS, STAR, SLASH,   // + - * /
         EQ, EQEQ, EXCL, NEQ,        // = == ! !=
@@ -21,7 +21,7 @@
         LPAREN, RPAREN, // ( )
         LBRACE, RBRACE, // { }
         SEMICOLON,      // ;
-
+        COMMA,
         EOF
     }
 }

@@ -12,5 +12,6 @@ namespace CompilerLabs.Core.Semantic
         public bool IsInitialized { get; set; }
         public bool IsUsed { get; set; }
         public DataType Type { get; set; } = DataType.Unknown;
+        public int? Arity { get; set; } // Для функций - количество параметров
     }
 }
